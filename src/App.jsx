@@ -1,9 +1,13 @@
+import { Outlet } from "react-router-dom"
+import Navbar from "./components/Navbar"
+
 function App() {
 
   return (
-    <>
-    <h1 className="text-2xl bg-blue-500">Mern Auth</h1>
-    </>
+    <div className="bg-slate-200">
+    <Navbar />
+    <Outlet />
+    </div>
   )
 }
 
