@@ -1,7 +1,12 @@
+import axios from "axios";
 import { useEffect, useState } from "react";
 import { BiHide, BiShow } from "react-icons/bi";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const LoginForm = () => {
+	const navigate = useNavigate();
 	const [formData, setFormData] = useState({
 		email: "",
 		password: "",
@@ -11,13 +16,12 @@ const LoginForm = () => {
 	const [allowSubmit, setAllowSubmit] = useState(false);
 
 	useEffect(() => {
-        if (formData.email.length >= 1 && formData.password.length >= 1) {
-            setAllowSubmit(true);
-        } else {
-            setAllowSubmit(false);
-        }
-    }, [formData]);
-    
+		if (formData.email.length >= 1 && formData.password.length >= 1) {
+			setAllowSubmit(true);
+		} else {
+			setAllowSubmit(false);
+		}
+	}, [formData]);
 
 	const handleChange = (e) => {
 		const { name, value } = e.target;
@@ -31,10 +35,34 @@ const LoginForm = () => {
 		setShowPassword(!showPassword);
 	};
 
-	const handleSubmit = (e) => {
+	const handleSubmit = async (e) => {
 		e.preventDefault();
-		// Handle form submission here
-		console.log(formData);
+		const { email, password } = formData;
+		try {
+			const response = await axios.post("http://localhost:5000/api/login", {
+				email,
+				password,
+			});
+			if (response.data.success) {
+				toast.success("Login successful");
+				navigate("/user");
+			} else {
+				toast.error(response.data.message);
+			}
+		} catch (error) {
+			if (
+				error.response &&
+				error.response.data &&
+				error.response.data.message
+			) {
+				// Handle server error with specific error message
+				toast.error(error.response.data.message);
+			} else {
+				// Handle unexpected error
+				console.error("An unexpected error occurred:", error);
+				toast.error("An unexpected error occurred. Please try again later.");
+			}
+		}
 	};
 
 	return (
@@ -79,17 +107,14 @@ const LoginForm = () => {
 					<button
 						className="absolute right-0 mt-2 mr-4 transform -translate-y-1/2 top-1/2 focus:outline-none"
 						onClick={handleTogglePassword}
+						type="button"
 					>
 						{showPassword ? <BiHide /> : <BiShow />}
 					</button>
 				</div>
 				<div className="flex items-center justify-between">
 					<button
-						className={`bg-${allowSubmit ? "blue" : "gray"}-500 hover:bg-${
-							allowSubmit ? "blue" : "gray"
-						}-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ${
-							!allowSubmit && "cursor-not-allowed"
-						}`}
+						className={`${allowSubmit ? "bg-blue-500" : "bg-gray-500"} ${allowSubmit ? "hover:bg-blue-700" : "hover:bg-gray-700"} text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ${!allowSubmit && "cursor-not-allowed"}`}
 						type="submit"
 						disabled={!allowSubmit}
 					>
