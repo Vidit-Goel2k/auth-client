@@ -1,8 +1,11 @@
+import DocumentationPage from "./DocumentationPage"
 
 
 const Body = () => {
   return (
-    <div className="flex justify-center items-center h-screen">Body</div>
+    <div >
+      <DocumentationPage />
+    </div>
   )
 }
 

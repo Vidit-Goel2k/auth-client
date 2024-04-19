@@ -1,12 +1,15 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { BiHide, BiShow } from "react-icons/bi";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { AuthContext } from "../utils/AuthContext";
 
 const LoginForm = () => {
+	const { isLoggedIn, login } = useContext(AuthContext);
 	const navigate = useNavigate();
+	isLoggedIn && navigate('/user')
 	const [formData, setFormData] = useState({
 		email: "",
 		password: "",
@@ -45,6 +48,7 @@ const LoginForm = () => {
 			});
 			if (response.data.success) {
 				toast.success("Login successful");
+				login()
 				navigate("/user");
 			} else {
 				toast.error(response.data.message);
