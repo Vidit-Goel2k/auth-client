@@ -1,21 +1,26 @@
+import axios from "axios";
 import { useEffect, useState } from "react";
 import { BiHide, BiShow } from "react-icons/bi";
+import { useNavigate } from "react-router-dom";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const SignupForm = () => {
+	const navigate = useNavigate()
 	const [formData, setFormData] = useState({
-		userName: "",
+		username: "",
 		email: "",
 		password: "",
 	});
 	const [showPassword, setShowPassword] = useState(false);
 	const [isValidPassword, setIsValidPassword] = useState(false);
 	const [isValidEmail, setIsValidEmail] = useState(false);
-	const [isValidUserName, setIsValidUserName] = useState(false);
+	const [isValidUsername, setIsValidUsername] = useState(false);
 	const [allowSubmit, setAllowSubmit] = useState(false);
 
 	useEffect(() => {
-		setAllowSubmit(isValidUserName && isValidEmail && isValidPassword);
-	}, [isValidUserName, isValidEmail, isValidPassword]);
+		setAllowSubmit(isValidUsername && isValidEmail && isValidPassword);
+	}, [isValidUsername, isValidEmail, isValidPassword]);
 
 	const handleTogglePassword = () => {
 		setShowPassword((prev) => !prev);
@@ -28,8 +33,8 @@ const SignupForm = () => {
 			[name]: value,
 		});
 
-		if (name === "userName") {
-			setIsValidUserName(/^[a-zA-Z0-9_-]{3,20}$/.test(value));
+		if (name === "username") {
+			setIsValidUsername(/^[a-zA-Z0-9_-]{3,20}$/.test(value));
 		}
 		if (name === "email") {
 			setIsValidEmail(
@@ -45,11 +50,39 @@ const SignupForm = () => {
 		}
 	};
 
-	const handleSubmit = (e) => {
-		e.preventDefault();
-		// Handle form submission here
-		console.log(formData);
+	const sendRequest = async () => {
+		const { username, email, password } = formData;
+		try {
+			const res = await axios.post("http://localhost:5000/api/signup", {
+				username,
+				email,
+				password
+			});
+			console.log(res.data); 
+			return res.data;
+		} catch (error) {
+			console.error("There was an error in Signing Up. Please Try Again", error.response.data);
+			throw error; // Rethrow the error to be caught by the caller
+		}
 	};
+	
+	const handleSubmit = async (e) => {
+		e.preventDefault();
+		try {
+			const data = await sendRequest();
+			if (data.success) {
+				toast.success('User created successfully');
+				navigate('/login');
+			} else {
+				toast.error(data.message);
+				console.error("Signup was unsuccessful:", data.message);
+			}
+		} catch (error) {
+			console.error("An unexpected error occurred:", error);
+			toast.error('An unexpected error occurred. Please try again later.');
+		}
+	};
+	
 
 	return (
 		<div className="flex items-center justify-center h-screen">
@@ -60,24 +93,24 @@ const SignupForm = () => {
 				<div className="mb-4">
 					<label
 						className="block mb-2 text-sm font-bold text-gray-700"
-						htmlFor="userName"
+						htmlFor="username"
 					>
 						User Name
 					</label>
 					<input
 						className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline ${
-							formData.userName && !isValidUserName
+							formData.username && !isValidUsername
 								? "border-red-500"
-								: isValidUserName
+								: isValidUsername
 								? "border-green-500"
 								: ""
 						}`}
 						// className="w-full px-3 py-2 leading-tight text-gray-700 border rounded shadow appearance-none focus:outline-none focus:shadow-outline"
-						id="userName"
+						id="username"
 						type="text"
 						placeholder="User Name"
-						name="userName"
-						value={formData.userName}
+						name="username"
+						value={formData.username}
 						onChange={handleChange}
 					/>
 				</div>
@@ -130,6 +163,7 @@ const SignupForm = () => {
 					/>
 					<button
 						className="absolute right-0 mt-2 mr-4 transform -translate-y-1/2 top-1/2 focus:outline-none"
+						type="button"
 						onClick={handleTogglePassword}
 					>
 						{showPassword ? <BiHide /> : <BiShow />}
