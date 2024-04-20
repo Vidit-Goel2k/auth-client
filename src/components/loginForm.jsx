@@ -6,6 +6,8 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { AuthContext } from "../utils/AuthContext";
 
+axios.defaults.withCredentials = true
+
 const LoginForm = () => {
 	const { isLoggedIn, login } = useContext(AuthContext);
 	const navigate = useNavigate();
