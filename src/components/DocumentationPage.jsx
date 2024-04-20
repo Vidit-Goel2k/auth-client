@@ -147,7 +147,8 @@ const signup = async (req, res) => {
     }
 };
 
-module.exports = signup;`}
+module.exports = signup;
+`}
 							</code>
 						</pre>
 						<h3 className="my-2 text-xl font-bold" id="2-login">
@@ -214,7 +215,7 @@ const login = async (req, res) => {
             httpOnly: true,
             sameSite: 'lax', 
             maxAge: 35 * 1000, // 35 sec
-            // secure: true, // Uncomment in production if using HTTPS
+            secure: true, // Uncomment in production if using HTTPS
         });
 
         // Respond with success message
@@ -226,7 +227,8 @@ const login = async (req, res) => {
     }
 };
 
-module.exports = login;`}
+module.exports = login;
+`}
 							</code>
 						</pre>
 						<h3 className="mb-2 text-xl font-bold" id="3-user-details">
@@ -256,7 +258,7 @@ module.exports = login;`}
 						<p className="mb-2">
 							Endpoint:{" "}
 							<code className="p-1 rounded-md bg-slate-200">
-								POST /api/refresh-token
+								GET /api/refresh-token
 							</code>
 						</p>
 						<ul className="pl-6 mb-4 list-disc">
@@ -272,48 +274,76 @@ module.exports = login;`}
 						</ul>
 						<pre className="p-4 overflow-auto rounded-lg bg-slate-200">
 							<code className="lang-javascript">
-								{`const jwt = require('jsonwebtoken');
+								{`const jwt = require("jsonwebtoken");
+
+const extractTokenFromCookie = (cookieString) => {
+	if (!cookieString) {
+		return null;
+	}
+
+	// Split the cookie string by semicolons to get individual cookies
+	const cookies = cookieString.split(";");
+
+	// Find the cookie containing the token
+	const tokenCookie = cookies.find((cookie) =>
+		cookie.trim().startsWith("token=")
+	);
+
+	if (!tokenCookie) {
+		return null;
+	}
+
+	// Extract the token from the cookie value
+	const token = tokenCookie.split("=")[1];
+
+	return token;
+};
 
 const refreshToken = (req, res, next) => {
-    const prevCookie = req.headers.cookie;
-  
-    // Extract the previous token from cookies
-    const prevToken = prevCookie && prevCookie.split('=')[1];
+	const prevCookie = req.headers.cookie;
 
-    // If no previous token found, return a 400 error
-    if (!prevToken) {
-        return res.status(400).json({ message: "Couldn't find token" });
-    }
+	// Extract the previous token from cookies
+	const prevToken = extractTokenFromCookie(prevCookie);
 
-    // Verify the previous token
-    jwt.verify(prevToken, process.env.JWT_SECRET, (err, decodedToken) => {
-        if (err) {
-            console.error('JWT verification error:', err);
-            return res.status(403).json({ message: 'Authentication failed' });
-        }
-        
-        // Generate a new token with a shorter expiration
-        const newToken = jwt.sign({ userId: decodedToken.userId }, process.env.JWT_SECRET, {
-            expiresIn: '30s',
-        });
+	// If no previous token found, return a 400 error
+	if (!prevToken) {
+		return res.status(400).json({ message: "Couldn't find token" });
+	}
 
-        // Set the new token as a cookie
-        res.cookie('token', newToken, {
-            path: '/',
-            expires: new Date(Date.now() + 1000 * 35), // 35 seconds
-            httpOnly: true,
-            sameSite: 'lax',
-        });
+	// Verify the previous token
+	jwt.verify(prevToken, process.env.JWT_SECRET, (err, decodedToken) => {
+		if (err) {
+			console.error("JWT verification error:", err);
+			return res.status(403).json({ message: "Authentication failed" });
+		}
 
-        next();
-    });
+		// Generate a new token with a shorter expiration
+		const newToken = jwt.sign(
+			{ userId: decodedToken.userId },
+			process.env.JWT_SECRET,
+			{
+				expiresIn: "30s",
+			}
+		);
+
+		// Set the new token as a cookie
+		res.cookie("token", newToken, {
+			path: "/",
+			expires: new Date(Date.now() + 1000 * 35), // 35 seconds
+			httpOnly: true,
+			sameSite: "lax",
+			secure: true,
+		});
+
+		next();
+	});
 };
 
 module.exports = refreshToken;
 `}
 							</code>
 						</pre>
-						<h3 className="mb-2 text-xl font-bold" id="5-logout">
+						<h3 className="my-2 text-xl font-bold" id="5-logout">
 							5. Logout
 						</h3>
 						<p className="mb-2">
