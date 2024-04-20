@@ -42,7 +42,7 @@ const LoginForm = () => {
 		e.preventDefault();
 		const { email, password } = formData;
 		try {
-			const response = await axios.post("http://localhost:5000/api/login", {
+			const response = await axios.post("https://mern-auth-server.viditgoel.com/api/login", {
 				email,
 				password,
 			});

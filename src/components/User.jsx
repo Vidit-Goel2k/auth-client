@@ -12,7 +12,7 @@ const Welcome = () => {
 
   const refreshToken = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/refresh", {
+      const response = await axios.get("https://mern-auth-server.viditgoel.com/api/refresh", {
         withCredentials: true,
       });
       return response.data.user;
@@ -24,7 +24,7 @@ const Welcome = () => {
 
   const sendRequest = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/user", {
+      const response = await axios.get("https://mern-auth-server.viditgoel.com/api/user", {
         withCredentials: true,
       });
       return response.data.user;

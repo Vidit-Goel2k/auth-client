@@ -53,7 +53,7 @@ const SignupForm = () => {
 	const sendRequest = async () => {
 		const { username, email, password } = formData;
 		try {
-			const res = await axios.post("http://localhost:5000/api/signup", {
+			const res = await axios.post("https://mern-auth-server.viditgoel.com/api/signup", {
 				username,
 				email,
 				password

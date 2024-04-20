@@ -21,7 +21,7 @@ const AuthProvider = ({ children }) => {
 
 	const logout = async () => {
 		try {
-			await axios.post("http://localhost:5000/api/logout");
+			await axios.post("https://mern-auth-server.viditgoel.com/api/logout");
 			setIsLoggedIn(false);
 			toast.success("Logged out successfully!");
 			navigate("/login");
